@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"net"
 	"time"
 
 	"gitlab.com/fl_validator/edge"
 	protos "gitlab.com/fl_validator/go_protos"
-	"go.uber.org/zap"
 	"google.golang.org/grpc"
 )
 
@@ -20,33 +20,38 @@ type baseModel struct {
 
 func main() {
 	clientURI := "0.0.0.0:7878"
+	serverURI := "0.0.0.0:8787"
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBlock(),
 	}
 
-	zap.L().Info("starting grpc server.... ")
-	startGrpcServer(clientURI)
+	log.Println("starting grpc server.... ")
+
+	startGrpcServer(serverURI)
+
+	log.Println("starting grpc client.... ")
 
 	conn, err := grpc.Dial(clientURI, opts...)
 	if err != nil {
-		zap.L().Fatal("fail to dail grpc", zap.Error(err))
+		log.Fatal("starting grpc server.... ")
 	}
 	defer conn.Close()
 
-	// test init
-	zap.L().Info("starting grpc server.... ")
+	log.Println("sending  init msg.... ")
+
 	sendInitMessage(clientURI)
 
 	time.Sleep(20 * time.Second)
 
-	zap.L().Info("sending local train message .... ")
-
+	log.Println("sending local train message .... ")
 	// test localtrain
 	sendLocalTrainMessage(clientURI, 1, baseModel{}, "")
 
 	time.Sleep(20 * time.Second)
+
+	log.Println("sending training finished message .... ")
 	// test train finish
 	sendTrainFinishMessage(clientURI)
 
@@ -55,30 +60,25 @@ func main() {
 func startGrpcServer(address string) *grpc.Server {
 	lis, err := net.Listen("tcp", address)
 	if err != nil {
-		zap.L().Fatal("Cannot listen on the address",
-			zap.String("service", "grpc"),
-			zap.String("address", address),
-			zap.Error(err))
+		log.Fatal("Cannot listen on the address", "address", address)
 	}
 	var opts []grpc.ServerOption
 	grpcServer := grpc.NewServer(opts...)
 
 	go func() {
-		zap.L().Debug("Grpc server listen the address",
-			zap.String("service", "grpc"),
-			zap.String("address", address))
+
+		log.Println("Grpc server listen the address .... ", "address", address)
 
 		protos.RegisterEdgeOperatorServer(grpcServer, &edge.EdgeOperatorServer{})
 
 		if err := grpcServer.Serve(lis); err != nil {
-			zap.L().Fatal("Cannot start server on the address",
-				zap.String("service", "grpc"),
-				zap.String("address", address),
-				zap.Error(err))
+			log.Fatal("Cannot start server on the address", "address", address)
+			log.Fatal("Cannot start server on the address")
 		}
 	}()
 
-	zap.L().Info(fmt.Sprintf("Grpc Listen [%v]", "0.0.0.0:8787"))
+	log.Println(fmt.Sprintf("Grpc Listen [%v]", "0.0.0.0:8787"))
+
 	return grpcServer
 }
 
@@ -140,7 +140,7 @@ func EmitEvent(
 
 	conn, err := grpc.Dial(clientURI, opts...)
 	if err != nil {
-		zap.L().Fatal("fail to dail grpc", zap.Error(err))
+		log.Println("fail to dail grpc")
 	}
 	defer conn.Close()
 
@@ -151,11 +151,11 @@ func EmitEvent(
 	response, err := emitEvent(ctx, client)
 	if err != nil {
 		if err == context.DeadlineExceeded {
-			zap.L().Fatal("Deadline exceeded")
+			log.Fatal("Deadline exceeded")
 		} else {
-			zap.L().Fatal("emitEvent get error", zap.Error(err))
+			log.Fatal("emitEvent get error", err)
 		}
 	}
 
-	zap.L().Debug("received response", zap.String("response", fmt.Sprintf("%v", response)))
+	log.Fatal("received response", fmt.Sprintf("%v", response))
 }
