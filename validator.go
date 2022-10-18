@@ -43,13 +43,13 @@ func main() {
 
 	sendInitMessage(clientURI)
 
-	time.Sleep(20 * time.Second)
+	//time.Sleep(20 * time.Second)
 
 	log.Println("sending local train message .... ")
 	// test localtrain
 	sendLocalTrainMessage(clientURI, 1, baseModel{}, "")
 
-	time.Sleep(20 * time.Second)
+	//time.Sleep(20 * time.Second)
 
 	log.Println("sending training finished message .... ")
 	// test train finish
