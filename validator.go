@@ -26,6 +26,9 @@ func main() {
 		grpc.WithBlock(),
 	}
 
+	zap.L().Info("starting grpc server.... ")
+	startGrpcServer(clientURI)
+
 	conn, err := grpc.Dial(clientURI, opts...)
 	if err != nil {
 		zap.L().Fatal("fail to dail grpc", zap.Error(err))
@@ -33,12 +36,17 @@ func main() {
 	defer conn.Close()
 
 	// test init
-	zap.L().Debug(" --- Sending Init Message --- ")
+	zap.L().Info("starting grpc server.... ")
 	sendInitMessage(clientURI)
+
+	time.Sleep(20 * time.Second)
+
+	zap.L().Info("sending local train message .... ")
 
 	// test localtrain
 	sendLocalTrainMessage(clientURI, 1, baseModel{}, "")
 
+	time.Sleep(20 * time.Second)
 	// test train finish
 	sendTrainFinishMessage(clientURI)
 
