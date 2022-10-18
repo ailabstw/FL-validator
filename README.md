@@ -1,8 +1,20 @@
-# Sample GitLab Project
+# FL validator
 
-This sample project shows how a project in GitLab looks for demonstration purposes. It contains issues, merge requests and Markdown files in many branches,
-named and filled with lorem ipsum.
+requirement:
+* go 1.15
 
-You can look around to get an idea how to structure your project and, when done, you can safely delete this project.
+setting:
+* FL application 's GPRC server should listen: 0.0.0.0:7878
+* FL application 's GPRC client should connect: 0.0.0.0:8787
 
-[Learn more about creating GitLab projects.](https://docs.gitlab.com/ee/gitlab-basics/create-project.html)
+usage:
+
+```bash
+go run .
+```
+
+validation message:
+
+```plainText
+"All FL validation completed . Congrats. "
+```

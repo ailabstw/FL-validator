@@ -27,11 +27,11 @@ func main() {
 		grpc.WithBlock(),
 	}
 
-	log.Println("starting grpc server.... ")
+	log.Println("Starting grpc server.... ")
 
 	startGrpcServer(serverURI)
 
-	log.Println("starting grpc client.... ")
+	log.Println("Starting grpc client.... ")
 
 	conn, err := grpc.Dial(clientURI, opts...)
 	if err != nil {
@@ -39,21 +39,24 @@ func main() {
 	}
 	defer conn.Close()
 
-	log.Println("sending  init msg.... ")
+	log.Println("Sending  initialization msg.... ")
 
 	sendInitMessage(clientURI)
 
 	time.Sleep(10 * time.Second)
 
-	log.Println("sending local train message .... ")
+	log.Println("Sending local train message .... ")
 	// test localtrain
 	sendLocalTrainMessage(clientURI, 1, baseModel{}, "")
 
 	time.Sleep(10 * time.Second)
 
-	log.Println("sending training finished message .... ")
+	log.Println("Sending training finished message .... ")
 	// test train finish
 	sendTrainFinishMessage(clientURI)
+
+	// all test sucessfully
+	log.Println("All FL validation completed . Congrats. ")
 
 }
 
