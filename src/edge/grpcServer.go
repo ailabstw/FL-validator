@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	protos "gitlab.com/fl_validator/go_protos"
+	protos "gitlab.com/fl_validator/src/go_protos"
 	"go.uber.org/zap"
 )
 

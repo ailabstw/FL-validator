@@ -7,8 +7,8 @@ import (
 	"net"
 	"time"
 
-	"gitlab.com/fl_validator/edge"
-	protos "gitlab.com/fl_validator/go_protos"
+	"gitlab.com/fl_validator/src/edge"
+	protos "gitlab.com/fl_validator/src/go_protos"
 	"google.golang.org/grpc"
 )
 
@@ -83,6 +83,18 @@ func startGrpcServer(address string) *grpc.Server {
 	log.Println(fmt.Sprintf("Grpc Listen [%v]", "0.0.0.0:8787"))
 
 	return grpcServer
+}
+
+func sendIsValidated(appGrpcServerURI string) {
+	EmitEvent(
+		appGrpcServerURI,
+		func(conn *grpc.ClientConn) interface{} {
+			return protos.NewEdgeAppClient(conn)
+		},
+		func(ctx context.Context, client interface{}) (interface{}, error) {
+			return client.(protos.EdgeAppClient).TrainInit(ctx, &protos.Empty{})
+		},
+	)
 }
 
 func sendInitMessage(appGrpcServerURI string) {

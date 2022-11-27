@@ -1,0 +1,40 @@
+variables:
+  MASTER_EDGE_IMAGE: $CI_REGISTRY_IMAGE/validator:master
+
+  DOCKER_DRIVER: overlay
+
+services:
+  - docker:stable-dind
+
+stages:
+  - build-protos
+  - build
+# --------
+build-go-protos:
+  stage: build-protos
+  image: docker
+  before_script:
+    - apk update; apk add make
+  script:
+    - make -C protos go_protos
+  artifacts:
+    paths:
+      - src/protos/go_protos
+    expire_in: 0.5 days
+
+
+build-operator-master:
+  stage: build
+  image: docker
+  before_script:
+    - apk update; apk add make
+    - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  script:
+    - make -C src/
+  only:
+    - master
+  after_script:
+    - docker tag federated/validator $MASTER_EDGE_IMAGE
+    - docker push $MASTER_EDGE_IMAGE
+  dependencies:
+    - build-go-protos
