@@ -1,0 +1,36 @@
+version: "2.3"
+services:
+  app:
+    container_name: hello-fl
+    image: registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4
+    environment:
+      LOCAL_MODEL_PATH: /model/weight.ckpt
+      GLOBAL_MODEL_PATH: /model/merge.ckpt
+      OPERATOR_URI: operator:8787
+      NVIDIA_VISIBLE_DEVICES: 0
+    runtime: nvidia
+    volumes:
+      - model:/model
+    ports:
+      - 7878:7878
+    ipc: host
+    networks:
+      - fl-network
+  validator:
+    container_name:
+    image:
+    environment:
+      GRPC_VERBOSITY: DEBUG
+      GRPC_TRACE: call_error,server_channel,http,http1,handshaker
+    volumes:
+      - {ROOT_PATH}/config.yml:/app/config.yml
+      - {ROOT_PATH}/repos:/repos
+    ports:
+      - 9080:9080
+    networks:
+      - fl-network
+
+networks:
+  fl-network:
+    external: false
+    name: fl-network
