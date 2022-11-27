@@ -15,9 +15,16 @@ services:
     ipc: host
     networks:
       - fl-network
+    healthcheck:
+      test: ["CMD","curl","-f","http://127.0.0.1:7878", "||", "exit" ,"1"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
   validator:
     container_name: federated-validator
     image: registry.corp.ailabs.tw/federated-learning/fl_app_validator/validator:master
+    depends_on:
+      - app
     environment:
       APP_URI: app:7878
       GRPC_VERBOSITY: DEBUG
