@@ -6,7 +6,6 @@ services:
     environment:
       LOCAL_MODEL_PATH: /model/weight.ckpt
       GLOBAL_MODEL_PATH: /model/merge.ckpt
-      OPERATOR_URI: operator:8787
       NVIDIA_VISIBLE_DEVICES: 0
     runtime: nvidia
     volumes:
@@ -17,14 +16,12 @@ services:
     networks:
       - fl-network
   validator:
-    container_name:
-    image:
+    container_name: federated-validator
+    image: federated/validator:latest
     environment:
+      APP_URI: app:7878
       GRPC_VERBOSITY: DEBUG
       GRPC_TRACE: call_error,server_channel,http,http1,handshaker
-    volumes:
-      - {ROOT_PATH}/config.yml:/app/config.yml
-      - {ROOT_PATH}/repos:/repos
     ports:
       - 9080:9080
     networks:

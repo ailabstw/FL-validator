@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"time"
 
 	"gitlab.com/fl_validator/src/edge"
@@ -19,8 +20,10 @@ type baseModel struct {
 }
 
 func main() {
-	clientURI := "0.0.0.0:7878"
+	clientURI := os.Getenv("APP_URI")
 	serverURI := "0.0.0.0:8787"
+
+	println("clientURI: " + clientURI)
 
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
