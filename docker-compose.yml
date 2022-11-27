@@ -17,7 +17,7 @@ services:
       - fl-network
   validator:
     container_name: federated-validator
-    image: federated/validator:latest
+    image: registry.corp.ailabs.tw/federated-learning/fl_app_validator/validator:master
     environment:
       APP_URI: app:7878
       GRPC_VERBOSITY: DEBUG
