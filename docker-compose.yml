@@ -9,7 +9,7 @@ services:
       NVIDIA_VISIBLE_DEVICES: 0
     runtime: nvidia
     volumes:
-      - model:/model
+      - /var/model:/model
     ports:
       - 7878:7878
     ipc: host
