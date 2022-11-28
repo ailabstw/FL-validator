@@ -7,6 +7,7 @@ services:
       LOCAL_MODEL_PATH: /model/weight.ckpt
       GLOBAL_MODEL_PATH: /model/merge.ckpt
       NVIDIA_VISIBLE_DEVICES: 0
+      OPERATOR_URI: validator:8787
     runtime: nvidia
     volumes:
       - /var/model:/model

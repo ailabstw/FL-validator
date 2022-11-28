@@ -42,6 +42,8 @@ func main() {
 	}
 	defer conn.Close()
 
+	time.Sleep(10 * time.Second)
+
 	log.Println("Sending  initialization msg.... ")
 
 	sendInitMessage(clientURI)
