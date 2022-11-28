@@ -2,16 +2,24 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"path/filepath"
+	"strconv"
+	"sync"
 	"time"
 
 	"gitlab.com/fl_validator/src/edge"
 	protos "gitlab.com/fl_validator/src/go_protos"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
+
+var mutx *sync.Mutex
 
 type baseModel struct {
 	repoName string
@@ -19,46 +27,61 @@ type baseModel struct {
 	metrics  map[string]float64
 }
 
+func checkOnlyInterface(appGrpcServerURI string) {
+
+	allImplement := true
+	allImplement = allImplement && sendIsValidated(true, appGrpcServerURI)
+	allImplement = allImplement && sendInitMessage(true, appGrpcServerURI)
+	allImplement = allImplement && sendLocalTrainMessage(true, appGrpcServerURI, 1, baseModel{}, "")
+	allImplement = allImplement && sendTrainFinishMessage(true, appGrpcServerURI)
+	allImplement = allImplement && sendTrainInteruptMessage(true, appGrpcServerURI)
+	if allImplement {
+		WriteReport("check", "all interface implemented", "")
+	}
+}
+
 func main() {
+	mutx = new(sync.Mutex)
 	clientURI := os.Getenv("APP_URI")
 	serverURI := "0.0.0.0:8787"
 
-	println("clientURI: " + clientURI)
+	log.Println("clientURI: " + clientURI)
 
-	opts := []grpc.DialOption{
-		grpc.WithInsecure(),
-		grpc.WithBlock(),
-	}
+	isInterfaceOnly, _ := strconv.ParseBool(os.Getenv("IS_INTERFACE_ONLY"))
 
 	log.Println("Starting grpc server.... ")
 
 	startGrpcServer(serverURI)
 
-	log.Println("Starting grpc client.... ")
-
-	conn, err := grpc.Dial(clientURI, opts...)
-	if err != nil {
-		log.Fatal("starting grpc server.... ")
+	if isInterfaceOnly {
+		log.Println("Check only interface .... ")
+		checkOnlyInterface(serverURI)
+		return
 	}
-	defer conn.Close()
 
 	time.Sleep(10 * time.Second)
 
 	log.Println("Sending  initialization msg.... ")
 
-	sendInitMessage(clientURI)
+	sendIsValidated(isInterfaceOnly, serverURI)
+
+	time.Sleep(10 * time.Second)
+
+	log.Println("Sending  initialization msg.... ")
+
+	sendInitMessage(isInterfaceOnly, clientURI)
 
 	time.Sleep(10 * time.Second)
 
 	log.Println("Sending local train message .... ")
 	// test localtrain
-	sendLocalTrainMessage(clientURI, 1, baseModel{}, "")
+	sendLocalTrainMessage(isInterfaceOnly, clientURI, 1, baseModel{}, "")
 
 	time.Sleep(10 * time.Second)
 
 	log.Println("Sending training finished message .... ")
 	// test train finish
-	sendTrainFinishMessage(clientURI)
+	sendTrainFinishMessage(isInterfaceOnly, clientURI)
 
 	// all test sucessfully
 	log.Println("All FL validation completed . Congrats. ")
@@ -90,8 +113,10 @@ func startGrpcServer(address string) *grpc.Server {
 	return grpcServer
 }
 
-func sendIsValidated(appGrpcServerURI string) {
-	EmitEvent(
+func sendIsValidated(isInterfaceOnly bool, appGrpcServerURI string) bool {
+	return EmitEvent(
+		isInterfaceOnly,
+		"IsValidated",
 		appGrpcServerURI,
 		func(conn *grpc.ClientConn) interface{} {
 			return protos.NewEdgeAppClient(conn)
@@ -99,11 +124,21 @@ func sendIsValidated(appGrpcServerURI string) {
 		func(ctx context.Context, client interface{}) (interface{}, error) {
 			return client.(protos.EdgeAppClient).TrainInit(ctx, &protos.Empty{})
 		},
+		func(response interface{}) interface{} {
+			if isInterfaceOnly {
+				WriteReport("IsValidated", "implemented", "")
+			} else {
+				WriteReport("IsValidated", "IsValidated sucessfully.", "")
+			}
+			return nil
+		},
 	)
 }
 
-func sendInitMessage(appGrpcServerURI string) {
-	EmitEvent(
+func sendInitMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
+	return EmitEvent(
+		isInterfaceOnly,
+		"TrainInit",
 		appGrpcServerURI,
 		func(conn *grpc.ClientConn) interface{} {
 			return protos.NewEdgeAppClient(conn)
@@ -111,11 +146,21 @@ func sendInitMessage(appGrpcServerURI string) {
 		func(ctx context.Context, client interface{}) (interface{}, error) {
 			return client.(protos.EdgeAppClient).TrainInit(ctx, &protos.Empty{})
 		},
+		func(response interface{}) interface{} {
+			if isInterfaceOnly {
+				WriteReport("TrainInit", "implemented", "")
+			} else {
+				WriteReport("TrainInit", "TrainInit sucessfully.", "")
+			}
+			return nil
+		},
 	)
 }
 
-func sendLocalTrainMessage(appGrpcServerURI string, epochPerRound int, baseModel baseModel, edgeRepoName string) {
-	EmitEvent(
+func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochPerRound int, baseModel baseModel, edgeRepoName string) bool {
+	return EmitEvent(
+		isInterfaceOnly,
+		"LocalTrain",
 		appGrpcServerURI,
 		func(conn *grpc.ClientConn) interface{} {
 			return protos.NewEdgeAppClient(conn)
@@ -133,11 +178,21 @@ func sendLocalTrainMessage(appGrpcServerURI string, epochPerRound int, baseModel
 				EpR: int32(epochPerRound),
 			})
 		},
+		func(response interface{}) interface{} {
+			if isInterfaceOnly {
+				WriteReport("LocalTrain", "implemented", "")
+			} else {
+				WriteReport("LocalTrain", "LocalTrain sucessfully.", "")
+			}
+			return nil
+		},
 	)
 }
 
-func sendTrainFinishMessage(appGrpcServerURI string) {
-	EmitEvent(
+func sendTrainFinishMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
+	return EmitEvent(
+		isInterfaceOnly,
+		"TrainFinish",
 		appGrpcServerURI,
 		func(conn *grpc.ClientConn) interface{} {
 			return protos.NewEdgeAppClient(conn)
@@ -145,14 +200,47 @@ func sendTrainFinishMessage(appGrpcServerURI string) {
 		func(ctx context.Context, client interface{}) (interface{}, error) {
 			return client.(protos.EdgeAppClient).TrainFinish(ctx, &protos.Empty{})
 		},
+		func(response interface{}) interface{} {
+			if isInterfaceOnly {
+				WriteReport("TrainFinish", "implemented", "")
+			} else {
+				WriteReport("TrainFinish", "TrainFinish sucessfully.", "")
+			}
+			return nil
+		},
+	)
+}
+
+func sendTrainInteruptMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
+	return EmitEvent(
+		isInterfaceOnly,
+		"TrainInterupt",
+		appGrpcServerURI,
+		func(conn *grpc.ClientConn) interface{} {
+			return protos.NewEdgeAppClient(conn)
+		},
+		func(ctx context.Context, client interface{}) (interface{}, error) {
+			return client.(protos.EdgeAppClient).TrainInterrupt(ctx, &protos.Empty{})
+		},
+		func(response interface{}) interface{} {
+			if isInterfaceOnly {
+				WriteReport("TrainInterrupt", "implemented", "")
+			} else {
+				WriteReport("TrainInterrupt", "TrainInterrupt sucessfully.", "")
+			}
+			return nil
+		},
 	)
 }
 
 func EmitEvent(
+	isInterfaceOnly bool,
+	state string,
 	clientURI string,
 	newClient func(*grpc.ClientConn) interface{},
 	emitEvent func(context.Context, interface{}) (interface{}, error),
-) {
+	responseHandler func(interface{}) interface{},
+) bool {
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		grpc.WithBlock(),
@@ -169,13 +257,59 @@ func EmitEvent(
 	defer cancel()
 
 	response, err := emitEvent(ctx, client)
-	if err != nil {
-		if err == context.DeadlineExceeded {
-			log.Fatal("Deadline exceeded")
+	stat, ok := status.FromError(err)
+	log.Printf("Code: %d, Message: %s\n", stat.Code(), stat.Message())
+	log.Println("received response", fmt.Sprintf("%v", response))
+
+	if ok {
+		responseHandler(response)
+		return true
+	} else {
+		errorCode := stat.Code()
+		if errorCode == codes.Unimplemented {
+			WriteReport(state, "", errorCode.String())
+			return true
+		} else if errorCode == codes.DeadlineExceeded {
+			WriteReport(state, "", errorCode.String())
+			return true
 		} else {
-			log.Fatal("emitEvent get error", err)
+			if !isInterfaceOnly {
+				WriteReport(state, "Unknow Error", errorCode.String())
+			}
 		}
 	}
+	return false
+}
 
-	log.Println("received response", fmt.Sprintf("%v", response))
+type ValidatingLogData struct {
+	Timestamp string `json:"timestamp"`
+	State     string `json:"state"`
+	Error     string `json:"error"`
+	Message   string `json:"message"`
+}
+
+func WriteReport(state string, msg string, er string) {
+	mutx.Lock()
+
+	err := os.MkdirAll(filepath.Dir(os.Getenv("REPORT_PATH")), os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
+
+	fo, err := os.OpenFile(os.Getenv("REPORT_PATH"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	var log ValidatingLogData
+	log.Timestamp = time.Now().Format(time.RFC3339)
+	log.State = state
+	log.Message = msg
+	log.Error = er
+	jsonStr, _ := json.Marshal(log)
+	fo.Write(jsonStr)
+	fo.WriteString("\n")
+	fo.Close()
+	mutx.Unlock()
+
 }

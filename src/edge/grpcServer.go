@@ -2,77 +2,64 @@ package edge
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"log"
 	"os"
+	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	protos "gitlab.com/fl_validator/src/go_protos"
-	"go.uber.org/zap"
 )
 
 type EdgeOperatorServer struct {
+	mutx *sync.Mutex
 }
-
-// type AbstractOperator interface {
-// 	GrpcServerRegister(*grpc.Server)
-// 	GetPayload() interface{}
-// 	TrainFinish()
-// }
 
 // LocalTrainFinish : event on finishing local training
 func (server *EdgeOperatorServer) LocalTrainFinish(_ context.Context, localTrainResult *protos.LocalTrainResult) (*protos.Empty, error) {
-	zap.L().Debug(" --- On Local Train Finish --- ", zap.String("server", fmt.Sprintf("%v", server)))
-	zap.L().Debug(fmt.Sprintf("Receive localTrainResult.Metadata [%v]", localTrainResult.Metadata))
-	zap.L().Debug(fmt.Sprintf("Receive localTrainResult.Metrics [%v]", localTrainResult.Metrics))
-
-	// var metadata map[string]string
-	// if localTrainResult.Metadata == nil {
-	// 	metadata = map[string]string{}
-	// } else {
-	// 	metadata = localTrainResult.Metadata
-	// }
-
-	// var metrics map[string]float64
-	// if localTrainResult.Metrics == nil {
-	// 	metrics = map[string]float64{}
-	// } else {
-	// 	metrics = localTrainResult.Metrics
-	// }
-
-	// server.operator.Dispatch(&trainFinishAction{
-	// 	errCode:     int(localTrainResult.Error),
-	// 	datasetSize: int(localTrainResult.DatasetSize),
-	// 	metadata:    metadata,
-	// 	metrics:     metrics,
-	// })
-
+	log.Println(" --- On Local Train Finish --- ", "server", fmt.Sprintf("%v", server))
 	return &protos.Empty{}, nil
 }
 
+type AppLogData struct {
+	Timestamp string `json:"timestamp"`
+	Level     string `json:"level"`
+	Message   string `json:"message"`
+}
+
 func (server *EdgeOperatorServer) LogMessage(_ context.Context, logMsg *protos.Log) (*protos.Empty, error) {
-	zap.L().Debug(" --- On LogMessage --- ", zap.String("server", fmt.Sprintf("%v", server)))
-	zap.L().Debug(fmt.Sprintf("Receive logMsg.Level [%v]", logMsg.Level))
-	zap.L().Debug(fmt.Sprintf("Receive logMsg.Message [%v]", logMsg.Message))
+	log.Println(" --- On LogMessage --- ", "server", fmt.Sprintf("%v", server))
 
-	err := os.MkdirAll("/ver/ailabs/", os.ModePerm)
+	log.Println("Level: ", logMsg.Level, "Message: ", logMsg.Message)
+
+	server.mutx.Lock()
+
+	logMsg.Level = strings.ToLower(logMsg.Level)
+
+	err := os.MkdirAll(filepath.Dir(os.Getenv("LOG_PATH")), os.ModePerm)
 	if err != nil {
 		panic(err)
 	}
 
-	fo, err := os.OpenFile("/ver/ailabs/harmonia.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0777)
+	fo, err := os.OpenFile(os.Getenv("LOG_PATH"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
 		panic(err)
 	}
 
-	fo.Write([]byte(time.Now().Format(time.RFC3339)))
-	fo.Write([]byte(" "))
-	fo.Write([]byte(strings.ToUpper(logMsg.Level)))
-	fo.Write([]byte(" "))
-	fo.Write([]byte(logMsg.Message))
+	var log AppLogData
+	log.Level = strings.ToLower(logMsg.Level)
+	log.Timestamp = time.Now().Format(time.RFC3339)
+	log.Message = logMsg.Message
+	jsonStr, _ := json.Marshal(log)
+	fo.Write(jsonStr)
 	fo.WriteString("\n")
-
 	fo.Close()
 
+	server.mutx.Unlock()
+
 	return &protos.Empty{}, nil
+
 }

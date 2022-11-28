@@ -28,8 +28,14 @@ services:
       - app
     environment:
       APP_URI: app:7878
+      REPORT_PATH: /ver/reports/report.json
+      LOG_PATH: /ver/logs/log.json
+      IS_INTERFACE_ONLY: false
       GRPC_VERBOSITY: DEBUG
       GRPC_TRACE: call_error,server_channel,http,http1,handshaker
+    volumes:
+      - /ver/ailabs/report:/ver/reports
+      - /ver/ailabs/logs:/ver/logs
     ports:
       - 9080:9080
     networks:
