@@ -57,7 +57,7 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 
-	log.Println("Sending  initialization msg.... ")
+	log.Println("Sending  validating msg.... ")
 
 	sendIsValidated(isInterfaceOnly, serverURI)
 
@@ -249,7 +249,7 @@ func EmitEvent(
 	defer conn.Close()
 
 	client := newClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	ctx, cancel := context.WithTimeout(context.WithValue(context.Background(), "draftRun", isInterfaceOnly), 60*time.Minute)
 	defer cancel()
 
 	response, err := emitEvent(ctx, client)
