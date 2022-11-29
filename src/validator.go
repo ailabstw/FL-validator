@@ -122,7 +122,7 @@ func sendIsValidated(isInterfaceOnly bool, appGrpcServerURI string) bool {
 			return protos.NewEdgeAppClient(conn)
 		},
 		func(ctx context.Context, client interface{}) (interface{}, error) {
-			return client.(protos.EdgeAppClient).TrainInit(ctx, &protos.Empty{})
+			return client.(protos.EdgeAppClient).IsDataValidated(ctx, &protos.Empty{})
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
@@ -265,6 +265,7 @@ func EmitEvent(
 		responseHandler(response)
 		return true
 	} else {
+		log.Println("errors happen ... handling")
 		errorCode := stat.Code()
 		if errorCode == codes.Unimplemented {
 			WriteReport(state, "", errorCode.String())
@@ -291,6 +292,8 @@ type ValidatingLogData struct {
 func WriteReport(state string, msg string, er string) {
 	mutx.Lock()
 
+	log.Println("writing report message ... ")
+	log.Println("path = ", os.Getenv("REPORT_PATH"))
 	err := os.MkdirAll(filepath.Dir(os.Getenv("REPORT_PATH")), os.ModePerm)
 	if err != nil {
 		panic(err)
