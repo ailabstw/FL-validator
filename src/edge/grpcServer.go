@@ -8,14 +8,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	protos "gitlab.com/fl_validator/src/go_protos"
 )
 
 type EdgeOperatorServer struct {
-	mutx *sync.Mutex
 }
 
 // LocalTrainFinish : event on finishing local training
@@ -34,8 +32,6 @@ func (server *EdgeOperatorServer) LogMessage(_ context.Context, logMsg *protos.L
 	log.Println(" --- On LogMessage --- ", "server", fmt.Sprintf("%v", server))
 
 	log.Println("Level: ", logMsg.Level, "Message: ", logMsg.Message)
-
-	server.mutx.Lock()
 
 	logMsg.Level = strings.ToLower(logMsg.Level)
 
@@ -57,8 +53,6 @@ func (server *EdgeOperatorServer) LogMessage(_ context.Context, logMsg *protos.L
 	fo.Write(jsonStr)
 	fo.WriteString("\n")
 	fo.Close()
-
-	server.mutx.Unlock()
 
 	return &protos.Empty{}, nil
 

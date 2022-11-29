@@ -19,8 +19,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var mutx *sync.Mutex
-
 type baseModel struct {
 	repoName string
 	metadata map[string]string
@@ -290,7 +288,6 @@ type ValidatingLogData struct {
 }
 
 func WriteReport(state string, msg string, er string) {
-	mutx.Lock()
 
 	log.Println("writing report message ... ")
 	log.Println("path = ", os.Getenv("REPORT_PATH"))
@@ -313,6 +310,5 @@ func WriteReport(state string, msg string, er string) {
 	fo.Write(jsonStr)
 	fo.WriteString("\n")
 	fo.Close()
-	mutx.Unlock()
 
 }
