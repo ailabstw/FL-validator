@@ -11,6 +11,7 @@ services:
     runtime: nvidia
     volumes:
       - /var/model:/model
+      - /var/data:/data
     ports:
       - 7878:7878
     ipc: host
