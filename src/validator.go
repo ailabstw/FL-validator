@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
-	"sync"
 	"time"
 
 	"gitlab.com/fl_validator/src/edge"
@@ -39,7 +38,6 @@ func checkOnlyInterface(appGrpcServerURI string) {
 }
 
 func main() {
-	mutx = new(sync.Mutex)
 	clientURI := os.Getenv("APP_URI")
 	serverURI := "0.0.0.0:8787"
 
