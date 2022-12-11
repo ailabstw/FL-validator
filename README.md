@@ -31,6 +31,9 @@ docker-compose up -d
 <div align="left"><img src="./assets/validator_msc_2.png" style="width:100%"></img></div>
 
   * Whether your image can sucessfully do the first round of federated learning. If you have sucessfully done one round of federated learning, you will see the message as below finally.
+  And both your app and our validator will end up exit 0 soon.
+
+<div align="left"><img src="./assets/validator_msc_sucess.png" style="width:100%"></img></div>
 
 
   * If your image have sucessfully implemented the log interface as the example (Hello FL), you will see a log file located at */var/logs/log.json*.
