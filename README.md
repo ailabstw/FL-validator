@@ -4,19 +4,22 @@ FL validator is a tool which can be used to validate whether your FL application
 
 # Getting started
 
-There are things one will need to do before using the fl validator. Things are as below.
+There are few things one will need to do before using the fl validator. The things are below.
 
 * 1. Know how to make a valid fl application image. This can be learned from our Hello FL project. The following link will get you there.
       [Hello FL](https://gitlab.corp.ailabs.tw/federated-learning/hello-fl)
 
 * 2. You will need to make a docker image (with all GRPC interfaces implemented) according to Hello FL. That us name it **3rd_application**.
 
-* 3. Alter the **docker-compose.yml** in this project.
-  * Change full image name of app (now is registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4) to the container name you just built from your Dockerfile (usually at the 5th line in docker-compose.yml in our project)
+* 3. Alter the **docker-compose.yml** file in this project.
 
-  * There are 2 environmental variables **LOCAL_MODEL_PATH** and **GLOBAL_MODEL_PATH** need to be set. **LOCAL_MODEL_PATH** is where you will place the model weight after you have trained a new weight per epoch.
+  * Change full image of the container ```app``` (which is ```registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4``` now) to the image you have built.(at the 5th line in docker-compose.yml)
+
+  * There are 2 environmental variables **LOCAL_MODEL_PATH** and **GLOBAL_MODEL_PATH** need to be set.
+    **LOCAL_MODEL_PATH** : is where you will place the model weight after you have trained a new weight per epoch.
   （The given example value of **LOCAL_MODEL_PATH** is ```/model/weight.ckpt```）
-  And **GLOBAL_MODEL_PATH** is the path where you will load your pre-trained model or the globally merged model
+
+    **GLOBAL_MODEL_PATH** :is the path where you will load your pre-trained model or the globally merged model
   （The given example value of *GLOBAL_MODEL_PATH* is ```/model/merge.ckpt```）
 
   * **NVIDIA_VISIBLE_DEVICES** need to be set as the index of the GPU card you will use.
@@ -26,7 +29,7 @@ There are things one will need to do before using the fl validator. Things are a
     * **model path** is where you should put the merged global model weight and the local model weight. And this will be the folder path (without file name) of the **LOCAL_MODEL_PATH**.
     * **data path** is where you should put your training datasets to correspond to the path you will load your datasets from.
 
-* 4. There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in validator in our docker-compose.yml to decide whether to enable dry run or not.
+* 4. There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in the validator in our docker-compose.yml to decide whether to enable dry run or not.
   * ```DRY_RUN='True'``` will open DRY RUN mode and the validator will only test the five GRPC interfaces for you.
   * ```DRY_RUN='False'``` will close DRY RUN and mode and the validator will do a full round of training tests.
 
