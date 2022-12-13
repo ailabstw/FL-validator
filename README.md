@@ -47,7 +47,7 @@ There are few things one will need to do before using the fl validator. The thin
         ```bash
           "draftRun", false
         ```
-        All your GRPC interfaces should immediately return OK once you have received ```"draftRun", true```.
+        All your GRPC interfaces should immediately return OK once you have received ```"draftRun", true``` after parsing the context contained in a GPPC call.
 
 
 * 5. After you have set 1-3 above, you can simply run our validator with command as below.
