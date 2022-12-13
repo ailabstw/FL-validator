@@ -43,7 +43,7 @@ func main() {
 
 	log.Println("clientURI: " + clientURI)
 
-	isInterfaceOnly, _ := strconv.ParseBool(os.Getenv("IS_INTERFACE_ONLY"))
+	isInterfaceOnly, _ := strconv.ParseBool(os.Getenv("DRY_RUN"))
 
 	log.Println("Starting grpc server.... ")
 

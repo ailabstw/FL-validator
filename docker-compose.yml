@@ -31,7 +31,7 @@ services:
       APP_URI: app:7878
       REPORT_PATH: /var/reports/report.json
       LOG_PATH: /var/logs/log.json
-      IS_INTERFACE_ONLY: 'False'
+      DRY_RUN: 'False'
       GRPC_VERBOSITY: DEBUG
       GRPC_TRACE: call_error,server_channel,http,http1,handshaker
     volumes:
