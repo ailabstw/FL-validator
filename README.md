@@ -59,7 +59,7 @@ docker-compose up -d
 
 ## What will be validated ?
 
-  * The four GPPC interfaces : **DataValidation**, **TrainInit**, **LocalTrain**, **TrainFinish** will be validated. (There are five GRPC interfaces actually, but currently *TrainInterrupt* do not be used.) You will know whether your image has successfully implemented the basic interface to fit our federated learning system. A report.json file will be created at **/var/reports/report.json** (You can change this path in docker-compose.yml, the outside path correspond **/var/report**)
+  * **DataValidation**, **TrainInit**, **LocalTrain**, **TrainFinish** : this four GPPC interfaces will be validated. (There are five GRPC interfaces actually, but currently **TrainInterrupt** do not be used.) You will know whether your image has successfully implemented the basic interfaces to fit Ailab's federated learning system. A **report.json** file will be created at ```/var/reports/report.json``` (You can change this path in docker-compose.yml, the outside path correspond ```/var/report```)
 
 <div align="left"><img src="./assets/validator_msc_2.png" style="width:100%"></img></div>
 
@@ -69,6 +69,6 @@ docker-compose up -d
 <div align="left"><img src="./assets/validator_msc_sucess.png" style="width:100%"></img></div>
 
 
-  * If your image have successfully implemented the log interface as the example (Hello FL), you will see a log file located at */var/logs/log.json*.
+  * If your image have successfully implemented the log interface as the example (Hello FL), you will see a log file located at ```/var/logs/log.json```.
 
   <div align="left"><img src="./assets/validator_msc_1.png" style="width:100%"></img></div>
