@@ -6,12 +6,12 @@ FL validator is a tool which can be used to validate whether your FL application
 
 There are few things one will need to do before using the fl validator. The things are below.
 
-* 1. Know how to make a valid fl application image. This can be learned from our Hello FL project. The following link will get you there.
+1. Know how to make a valid fl application image. This can be learned from our Hello FL project. The following link will get you there.
       [Hello FL](https://gitlab.corp.ailabs.tw/federated-learning/hello-fl)
 
-* 2. You will need to make a docker image (with all GRPC interfaces implemented) according to Hello FL. That us name it **3rd_application**.
+2. You will need to make a docker image (with all GRPC interfaces implemented) according to Hello FL. Let's call it **my_application**.
 
-* 3. Alter the **docker-compose.yml** file in this project.
+3. Alter the **docker-compose.yml** file in this project.
 
   * Change full image of the container ```app``` (which is ```registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4``` now) to the image you have built.(at the 5th line in docker-compose.yml)
 
