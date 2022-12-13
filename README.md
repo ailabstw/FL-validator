@@ -30,25 +30,24 @@ There are few things one will need to do before using the fl validator. The thin
     * **model path** is where you should put the merged global model weight and the local model weight. And this will be the folder path (without file name) of the ```LOCAL_MODEL_PATH```.
     * **data path** is where you should put your training datasets to correspond to the path you will load your datasets from.
 
-* 4. There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in the validator in our docker-compose.yml to decide whether to enable dry run or not.
-  * ```DRY_RUN='True'``` will open DRY RUN mode and the validator will only test the five GRPC interfaces for you.
-  * ```DRY_RUN='False'``` will close DRY RUN and mode and the validator will do a full round of training tests.
+* 4. **DRY_RUN** : set this to enable ```DRY_RUN``` or disable ```DRY_RUN```.
+      There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in the validator in our docker-compose.yml to decide whether to enable dry run or not.
+        * ```DRY_RUN='True'``` will open DRY RUN mode and the validator will only test the five GRPC interfaces for you.
+        * ```DRY_RUN='False'``` will close DRY RUN and mode and the validator will do a full round of training tests.
+
+      There is an important thing one needs to know. That is if one wants to open DRY RUN mode, their GRPC server implemented in *3rd_application* will need to handle ```DRY RUN mode message``` which is packaged in the context of every GRPC call validator makes.
 
 
-  There is an important thing one needs to know. That is if one wants to open DRY RUN mode, their GRPC server implemented in *3rd_application* will need to handle ```DRY RUN mode message``` which is packaged in the context of every GRPC call validator makes.
+      The ```DRY RUN mode message``` is a key-value pair (the key is a string and the value is bool) as below.
+        ```bash
+          "draftRun", true
+        ```
+        Or
 
-
-  The ```DRY RUN mode message``` is a key-value pair (the key is a string and the value is bool) as below.
-    ```bash
-      "draftRun", true
-    ```
-    Or
-
-    ```bash
-      "draftRun", false
-    ```
-    All your GRPC interfaces should immediately return OK once you have received ```"draftRun", true```.
-
+        ```bash
+          "draftRun", false
+        ```
+        All your GRPC interfaces should immediately return OK once you have received ```"draftRun", true```.
 
 
 * 5. After you have set 1-3 above, you can simply run our validator with command as below.
@@ -56,6 +55,7 @@ There are few things one will need to do before using the fl validator. The thin
 ```bash
 docker-compose up -d
 ```
+
 
 ## What will be validated ?
 
