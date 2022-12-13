@@ -95,7 +95,6 @@ docker-compose up -d
 
 <div align="left"><img src="./assets/validator_msc_sucess.png" style="width:100%"></img></div>
 
-
-  * **Whether your image have successfully implemented the log interface**:  As the example Hello FL, you will see a log file located at ```/var/logs/log.json``` in your container.
+  * **Whether your image have successfully implemented the log interface**:  If you have implemented the log interface, you can use the log interface to output logs and finally you can find a log file at ```/var/logs/log.json``` in your container.
 
   <div align="left"><img src="./assets/validator_msc_1.png" style="width:100%"></img></div>
