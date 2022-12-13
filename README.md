@@ -13,7 +13,7 @@ There are few things one will need to do before using the fl validator. The thin
 
 3. Alter the **docker-compose.yml** file in this project.
 
-  * Change full image of the container ```app``` (which is ```registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4``` now) to the image you have built.(at the 5th line in docker-compose.yml)
+  * Change the image of the container ```app``` (which is ```registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4``` now) to the image you have built.(at the 5th line in docker-compose.yml)
 
   * There are few environmental variables that need to be set.
 
