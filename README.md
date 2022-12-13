@@ -27,8 +27,8 @@ There are few things one will need to do before using the fl validator. The thin
   （The given example value of ```NVIDIA_VISIBLE_DEVICES``` is ```0```, because only choose first GPU card to do training.）
 
   * The docker-compose's mounting path（```volumes:```） also needs to be altered. There are two paths that need to be set . One is *model path*, and another is ```data path```.
-    * **model path** is where you should put the merged global model weight and the local model weight. And this will be the folder path (without file name) of the ```LOCAL_MODEL_PATH```.
-    * **data path** is where you should put your training datasets to correspond to the path you will load your datasets from.
+    * **model path** is where you should put the merged global model weight and the local model weight. And this will be the folder path (without the model weight's name) of the ```LOCAL_MODEL_PATH```.
+    * **data path** is where you should put your training datasets in correspond to the path you will load your datasets from.
 
 * 4. **DRY_RUN** : set this to enable ```DRY_RUN``` or disable ```DRY_RUN```.
       There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in the validator in our docker-compose.yml to decide whether to enable dry run or not.
