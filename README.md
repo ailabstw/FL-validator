@@ -32,10 +32,10 @@ There are few things one will need to do before using the fl validator. The thin
 
 * 4. **DRY_RUN** : set this to enable ```DRY_RUN``` or disable ```DRY_RUN```.
       There are two modes one can choose. One can set the value of ```DRY_RUN``` argument in the environment variables setting in the validator in our docker-compose.yml to decide whether to enable dry run or not.
-        * ```DRY_RUN='True'``` will open DRY RUN mode and the validator will only test the five GRPC interfaces for you.
-        * ```DRY_RUN='False'``` will close DRY RUN and mode and the validator will do a full round of training tests.
+        * ```DRY_RUN='True'``` enable DRY RUN mode. The validator will test the four GRPC interfaces of your ```3rd_application```.
+        * ```DRY_RUN='False'``` disable DRY RUN and mode. The validator will test a full round of training with your ```3rd_application```.
 
-      There is an important thing one needs to know. That is if one wants to open DRY RUN mode, their GRPC server implemented in *3rd_application* will need to handle ```DRY RUN mode message``` which is packaged in the context of every GRPC call validator makes.
+      There is an important thing one needs to know. That is if one wants to open DRY RUN mode, their GRPC server implemented in ```3rd_application``` will need to handle ```DRY RUN mode message``` which is packaged in the context of every GRPC call validator makes.
 
 
       The ```DRY RUN mode message``` is a key-value pair (the key is a string and the value is bool) as below.
