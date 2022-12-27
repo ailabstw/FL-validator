@@ -66,7 +66,7 @@ There are few things you will need to do before using the fl validator. The thin
 
       The ```DRY RUN mode message``` is a key-value pair as below.
       ```yaml
-          "dryRun":true
+          "dryRun": true
       ```
       Or
 
