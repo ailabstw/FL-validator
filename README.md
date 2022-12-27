@@ -7,7 +7,7 @@ FL validator is a tool which can be used to validate whether your FL application
 There are few things you will need to do before using the fl validator. The things are below.
 
 1. Know how to make a valid fl application image. This can be learned from our Hello FL project. The following link will get you there.
-      [Hello FL](https://gitlab.corp.ailabs.tw/federated-learning/hello-fl)
+      [Hello FL](https://github.com/ailabstw/Hello-FL)
 
 2. You will need to make a docker image (with all gRPC interfaces implemented) according to Hello FL. Let's call it **my_application**.
 
@@ -65,15 +65,15 @@ There are few things you will need to do before using the fl validator. The thin
 
 
       The ```DRY RUN mode message``` is a key-value pair as below.
-        ```bash
-          "dryRun", true
-        ```
-        Or
+      ```yaml
+          "dryRun:true
+      ```
+      Or
 
-        ```bash
-          "dryRun", false
-        ```
-        All your gRPC interfaces should immediately return OK once you have received ```"draftRun", true``` after parsing the context contained in a GPPC call.
+      ```yaml
+          "dryRun": false
+      ```
+All your gRPC interfaces should immediately return OK once you have received ```"draftRun", true``` after parsing the context contained in a GPPC call.
 
 
 5. After you have set 1-4 above, you can simply run our validator with command as below.
