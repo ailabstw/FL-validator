@@ -49,13 +49,14 @@ func main() {
 
 	startGrpcServer(serverURI)
 
+	time.Sleep(30 * time.Second)
+
 	if isInterfaceOnly {
 		log.Println("Check only interface .... ")
 		checkOnlyInterface(serverURI)
+		time.Sleep(20 * time.Second)
 		return
 	}
-
-	time.Sleep(10 * time.Second)
 
 	log.Println("Sending  validating msg.... ")
 
