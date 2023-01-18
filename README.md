@@ -17,7 +17,7 @@ There are few things you will need to do before using the fl validator. The thin
       ```yaml
         app:
           container_name: app
-          image: registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.3.4
+          image: registry.corp.ailabs.tw/federated-learning/hello-fl/edge:1.4.1
       ```
 
   * There are few environmental variables that need to be set.

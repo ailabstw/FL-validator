@@ -27,9 +27,9 @@ type baseModel struct {
 func checkOnlyInterface(appGrpcServerURI string) {
 
 	allImplement := true
-	allImplement = allImplement && sendIsValidated(true, appGrpcServerURI)
+	allImplement = allImplement && sendDataValidate(true, appGrpcServerURI)
 	allImplement = allImplement && sendInitMessage(true, appGrpcServerURI)
-	allImplement = allImplement && sendLocalTrainMessage(true, appGrpcServerURI, 1, baseModel{}, "")
+	allImplement = allImplement && sendLocalTrainMessage(true, appGrpcServerURI, 1)
 	allImplement = allImplement && sendTrainFinishMessage(true, appGrpcServerURI)
 	allImplement = allImplement && sendTrainInteruptMessage(true, appGrpcServerURI)
 	if allImplement {
@@ -59,7 +59,7 @@ func main() {
 
 	log.Println("Sending  validating msg.... ")
 
-	sendIsValidated(isInterfaceOnly, serverURI)
+	sendDataValidate(isInterfaceOnly, serverURI)
 
 	time.Sleep(10 * time.Second)
 
@@ -71,7 +71,7 @@ func main() {
 
 	log.Println("Sending local train message .... ")
 	// test localtrain
-	sendLocalTrainMessage(isInterfaceOnly, clientURI, 1, baseModel{}, "")
+	sendLocalTrainMessage(isInterfaceOnly, clientURI, 1)
 
 	time.Sleep(10 * time.Second)
 
@@ -109,22 +109,22 @@ func startGrpcServer(address string) *grpc.Server {
 	return grpcServer
 }
 
-func sendIsValidated(isInterfaceOnly bool, appGrpcServerURI string) bool {
+func sendDataValidate(isInterfaceOnly bool, appGrpcServerURI string) bool {
 	return EmitEvent(
 		isInterfaceOnly,
-		"IsValidated",
+		"DataValidate",
 		appGrpcServerURI,
 		func(conn *grpc.ClientConn) interface{} {
 			return protos.NewEdgeAppClient(conn)
 		},
 		func(ctx context.Context, client interface{}) (interface{}, error) {
-			return client.(protos.EdgeAppClient).IsDataValidated(ctx, &protos.Empty{})
+			return client.(protos.EdgeAppClient).DataValidate(ctx, &protos.Empty{})
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("IsValidated", "implemented", "")
+				WriteReport("DataValidate", "implemented", "")
 			} else {
-				WriteReport("IsValidated", "IsValidated sucessfully.", "")
+				WriteReport("DataValidate", "DataValidate sucessfully.", "")
 			}
 			return nil
 		},
@@ -153,7 +153,7 @@ func sendInitMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
 	)
 }
 
-func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochPerRound int, baseModel baseModel, edgeRepoName string) bool {
+func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochPerRound int) bool {
 	return EmitEvent(
 		isInterfaceOnly,
 		"LocalTrain",
@@ -163,14 +163,6 @@ func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochP
 		},
 		func(ctx context.Context, client interface{}) (interface{}, error) {
 			return client.(protos.EdgeAppClient).LocalTrain(ctx, &protos.LocalTrainParams{
-				BaseModel: &protos.LocalTrainParams_BaseModel{
-					Path:     baseModel.repoName,
-					Metadata: baseModel.metadata,
-					Metrics:  baseModel.metrics,
-				},
-				LocalModel: &protos.LocalTrainParams_LocalModel{
-					Path: edgeRepoName,
-				},
 				EpR: int32(epochPerRound),
 			})
 		},
