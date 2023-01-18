@@ -24,14 +24,14 @@ type baseModel struct {
 	metrics  map[string]float64
 }
 
-func checkOnlyInterface(appGrpcServerURI string) {
+func checkOnlyInterface(clientURI string) {
 
 	allImplement := true
-	allImplement = allImplement && sendDataValidate(true, appGrpcServerURI)
-	allImplement = allImplement && sendInitMessage(true, appGrpcServerURI)
-	allImplement = allImplement && sendLocalTrainMessage(true, appGrpcServerURI, 1)
-	allImplement = allImplement && sendTrainFinishMessage(true, appGrpcServerURI)
-	allImplement = allImplement && sendTrainInteruptMessage(true, appGrpcServerURI)
+	allImplement = allImplement && sendDataValidate(true, clientURI)
+	allImplement = allImplement && sendInitMessage(true, clientURI)
+	allImplement = allImplement && sendLocalTrainMessage(true, clientURI, 1)
+	allImplement = allImplement && sendTrainFinishMessage(true, clientURI)
+	allImplement = allImplement && sendTrainInteruptMessage(true, clientURI)
 	if allImplement {
 		WriteReport("check", "all interface implemented", "")
 	}
@@ -53,14 +53,14 @@ func main() {
 
 	if isInterfaceOnly {
 		log.Println("Check only interface .... ")
-		checkOnlyInterface(serverURI)
+		checkOnlyInterface(clientURI)
 		time.Sleep(20 * time.Second)
 		return
 	}
 
-	log.Println("Sending  validating msg.... ")
+	log.Println("Sending validating msg.... ")
 
-	sendDataValidate(isInterfaceOnly, serverURI)
+	sendDataValidate(isInterfaceOnly, clientURI)
 
 	time.Sleep(10 * time.Second)
 
