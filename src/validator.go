@@ -2,17 +2,16 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"log"
 	"net"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 
 	"gitlab.com/fl_validator/src/edge"
 	protos "gitlab.com/fl_validator/src/go_protos"
+	"gitlab.com/fl_validator/src/util"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -34,7 +33,9 @@ func checkOnlyInterface(clientURI string) {
 	allImplement = allImplement && sendTrainFinishMessage(true, clientURI)
 	allImplement = allImplement && sendTrainInteruptMessage(true, clientURI)
 	if allImplement {
-		WriteReport("check", "all interface implemented", "")
+		util.WriteReport("check", "all interface implemented", "")
+	} else {
+		util.WriteReport("check", "not all interface implemented", "not all interface implemented")
 	}
 }
 
@@ -69,7 +70,7 @@ func main() {
 
 	sendInitMessage(isInterfaceOnly, clientURI)
 
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	log.Println("Sending local train message .... ")
 	// test localtrain
@@ -77,12 +78,23 @@ func main() {
 
 	time.Sleep(10 * time.Second)
 
+	// test TrainInterupt
+	sendTrainInteruptMessage(isInterfaceOnly, clientURI)
+
+	time.Sleep(10 * time.Second)
+
 	log.Println("Sending training finished message .... ")
 	// test train finish
 	sendTrainFinishMessage(isInterfaceOnly, clientURI)
 
+	time.Sleep(5 * time.Second)
+
 	// all test sucessfully
-	log.Println("All FL validation completed . Congrats. ")
+	if util.GetResult() {
+		log.Println("All FL validation completed . Congrats. ")
+	} else {
+		log.Println("FL validation failed. Please checkout error logs for detals. ")
+	}
 
 }
 
@@ -124,9 +136,9 @@ func sendDataValidate(isInterfaceOnly bool, appGrpcServerURI string) bool {
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("DataValidate", "implemented", "")
+				util.WriteReport("DataValidate", "implemented", "")
 			} else {
-				WriteReport("DataValidate", "DataValidate sucessfully.", "")
+				util.WriteReport("DataValidate", "DataValidate sucessfully.", "")
 			}
 			return nil
 		},
@@ -146,9 +158,9 @@ func sendInitMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("TrainInit", "implemented", "")
+				util.WriteReport("TrainInit", "implemented", "")
 			} else {
-				WriteReport("TrainInit", "TrainInit sucessfully.", "")
+				util.WriteReport("TrainInit", "TrainInit sucessfully.", "")
 			}
 			return nil
 		},
@@ -170,9 +182,9 @@ func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochP
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("LocalTrain", "implemented", "")
+				util.WriteReport("LocalTrain", "implemented", "")
 			} else {
-				WriteReport("LocalTrain", "LocalTrain sucessfully.", "")
+				util.WriteReport("LocalTrain", "LocalTrain sucessfully.", "")
 			}
 			return nil
 		},
@@ -192,9 +204,9 @@ func sendTrainFinishMessage(isInterfaceOnly bool, appGrpcServerURI string) bool 
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("TrainFinish", "implemented", "")
+				util.WriteReport("TrainFinish", "implemented", "")
 			} else {
-				WriteReport("TrainFinish", "TrainFinish sucessfully.", "")
+				util.WriteReport("TrainFinish", "TrainFinish sucessfully.", "")
 			}
 			return nil
 		},
@@ -214,9 +226,9 @@ func sendTrainInteruptMessage(isInterfaceOnly bool, appGrpcServerURI string) boo
 		},
 		func(response interface{}) interface{} {
 			if isInterfaceOnly {
-				WriteReport("TrainInterrupt", "implemented", "")
+				util.WriteReport("TrainInterrupt", "implemented", "")
 			} else {
-				WriteReport("TrainInterrupt", "TrainInterrupt sucessfully.", "")
+				util.WriteReport("TrainInterrupt", "TrainInterrupt sucessfully.", "")
 			}
 			return nil
 		},
@@ -250,7 +262,7 @@ func EmitEvent(
 
 	response, err := emitEvent(ctx, client)
 	stat, ok := status.FromError(err)
-	log.Printf("Code: %d, Message: %s\n", stat.Code(), stat.Message())
+	//log.Printf("Code: %d, Message: %s\n", stat.Code(), stat.Message())
 	log.Println("received response", fmt.Sprintf("%v", response))
 
 	if ok {
@@ -260,49 +272,19 @@ func EmitEvent(
 		log.Println("errors happen ... handling")
 		errorCode := stat.Code()
 		if errorCode == codes.Unimplemented {
-			WriteReport(state, "", errorCode.String())
+			util.MakeResultFalse()
+			util.WriteReport(state, errorCode.String(), errorCode.String())
 			return true
 		} else if errorCode == codes.DeadlineExceeded {
-			WriteReport(state, "", errorCode.String())
+			util.MakeResultFalse()
+			util.WriteReport(state, errorCode.String(), errorCode.String())
 			return true
 		} else {
 			if !isInterfaceOnly {
-				WriteReport(state, "Unknow Error", errorCode.String())
+				util.MakeResultFalse()
+				util.WriteReport(state, "Unknow Error", errorCode.String())
 			}
 		}
 	}
 	return false
-}
-
-type ValidatingLogData struct {
-	Timestamp string `json:"timestamp"`
-	State     string `json:"state"`
-	Error     string `json:"error"`
-	Message   string `json:"message"`
-}
-
-func WriteReport(state string, msg string, er string) {
-
-	log.Println("writing report message ... ")
-	log.Println("path = ", os.Getenv("REPORT_PATH"))
-	err := os.MkdirAll(filepath.Dir(os.Getenv("REPORT_PATH")), os.ModePerm)
-	if err != nil {
-		panic(err)
-	}
-
-	fo, err := os.OpenFile(os.Getenv("REPORT_PATH"), os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
-	if err != nil {
-		panic(err)
-	}
-
-	var log ValidatingLogData
-	log.Timestamp = time.Now().Format(time.RFC3339)
-	log.State = state
-	log.Message = msg
-	log.Error = er
-	jsonStr, _ := json.Marshal(log)
-	fo.Write(jsonStr)
-	fo.WriteString("\n")
-	fo.Close()
-
 }
