@@ -15,6 +15,7 @@ import (
 	protos "gitlab.com/fl_validator/src/go_protos"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
@@ -242,7 +243,9 @@ func EmitEvent(
 	defer conn.Close()
 
 	client := newClient(conn)
-	ctx, cancel := context.WithTimeout(context.WithValue(context.Background(), "draftRun", isInterfaceOnly), 60*time.Minute)
+
+	ctx := metadata.AppendToOutgoingContext(context.Background(), "draftRun", strconv.FormatBool(isInterfaceOnly))
+	ctx, cancel := context.WithTimeout(ctx, 60*time.Minute)
 	defer cancel()
 
 	response, err := emitEvent(ctx, client)
