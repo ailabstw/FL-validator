@@ -10,7 +10,7 @@ import (
 )
 
 var resultCorrect = true
-var mux *sync.Mutex
+var mux *sync.Mutex = new(sync.Mutex)
 
 func MakeResultFalse() {
 	mux.Lock()
