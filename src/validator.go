@@ -89,7 +89,7 @@ func main() {
 
 	time.Sleep(5 * time.Second)
 
-	// all test sucessfully
+	// all test successfully
 	if util.GetResult() {
 		log.Println("All FL validation completed . Congrats. ")
 	} else {
@@ -138,7 +138,7 @@ func sendDataValidate(isInterfaceOnly bool, appGrpcServerURI string) bool {
 			if isInterfaceOnly {
 				util.WriteReport("DataValidate", "implemented", "")
 			} else {
-				util.WriteReport("DataValidate", "DataValidate sucessfully.", "")
+				util.WriteReport("DataValidate", "DataValidate successfully.", "")
 			}
 			return nil
 		},
@@ -160,7 +160,7 @@ func sendInitMessage(isInterfaceOnly bool, appGrpcServerURI string) bool {
 			if isInterfaceOnly {
 				util.WriteReport("TrainInit", "implemented", "")
 			} else {
-				util.WriteReport("TrainInit", "TrainInit sucessfully.", "")
+				util.WriteReport("TrainInit", "TrainInit successfully.", "")
 			}
 			return nil
 		},
@@ -184,7 +184,7 @@ func sendLocalTrainMessage(isInterfaceOnly bool, appGrpcServerURI string, epochP
 			if isInterfaceOnly {
 				util.WriteReport("LocalTrain", "implemented", "")
 			} else {
-				util.WriteReport("LocalTrain", "LocalTrain sucessfully.", "")
+				util.WriteReport("LocalTrain", "LocalTrain successfully.", "")
 			}
 			return nil
 		},
@@ -206,7 +206,7 @@ func sendTrainFinishMessage(isInterfaceOnly bool, appGrpcServerURI string) bool 
 			if isInterfaceOnly {
 				util.WriteReport("TrainFinish", "implemented", "")
 			} else {
-				util.WriteReport("TrainFinish", "TrainFinish sucessfully.", "")
+				util.WriteReport("TrainFinish", "TrainFinish successfully.", "")
 			}
 			return nil
 		},
@@ -228,7 +228,7 @@ func sendTrainInteruptMessage(isInterfaceOnly bool, appGrpcServerURI string) boo
 			if isInterfaceOnly {
 				util.WriteReport("TrainInterrupt", "implemented", "")
 			} else {
-				util.WriteReport("TrainInterrupt", "TrainInterrupt sucessfully.", "")
+				util.WriteReport("TrainInterrupt", "TrainInterrupt successfully.", "")
 			}
 			return nil
 		},

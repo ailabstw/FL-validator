@@ -27,9 +27,7 @@ func GetResult() bool {
 
 func WriteReport(state string, msg string, er string) {
 
-	log.Println("writing report message ... ")
-	log.Println("path = ", os.Getenv("REPORT_PATH"))
-	log.Println("context =", msg)
+	log.Println("writing report message ... state: " + state + ", msg: " + msg)
 	err := os.MkdirAll(filepath.Dir(os.Getenv("REPORT_PATH")), os.ModePerm)
 	if err != nil {
 		panic(err)
