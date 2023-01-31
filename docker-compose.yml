@@ -24,7 +24,7 @@ services:
       retries: 3
   validator:
     container_name: federated-validator
-    image: registry.corp.ailabs.tw/federated-learning/fl_app_validator/validator:master
+    image: registry.corp.ailabs.tw/federated-learning/fl_app_validator/validator:1.0.0
     depends_on:
       - app
     environment:
